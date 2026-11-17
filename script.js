@@ -115,5 +115,35 @@ function renderRepos(repos) {
   });
 }
 
-// Page load hone par sample cards dikhao
-renderRepos(sampleRepos);
+// ===== REAL GitHub API DATA =====
+const GITHUB_USERNAME = "Ayushi98mi";
+
+async function loadRepos() {
+  const note = document.getElementById("repo-note");
+  try {
+    const response = await fetch(
+      `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`
+    );
+
+    if (!response.ok) {
+      throw new Error("GitHub API error: " + response.status);
+    }
+
+    const repos = await response.json();
+
+    // Forked repos hata do (optional)
+    const myRepos = repos.filter(function (repo) {
+      return !repo.fork;
+    });
+
+    renderRepos(myRepos);
+    note.textContent = "Live data from GitHub API";
+  } catch (error) {
+    console.error(error);
+    // API fail ho to sample data dikhao
+    renderRepos(sampleRepos);
+    note.textContent = "Could not load GitHub data. Showing sample data.";
+  }
+}
+
+loadRepos();
