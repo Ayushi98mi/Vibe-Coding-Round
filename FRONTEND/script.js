@@ -1,137 +1,149 @@
 
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    color: #222;
+const heatmap = document.getElementById("heatmap");
+const contributionCount = document.getElementById("contribution-count");
+
+let totalContributions = 0;
+
+// Generate sample activity for the last 365 days
+for (let i = 0; i < 365; i++) {
+    const day = document.createElement("div");
+    day.classList.add("day");
+
+    // Sample activity level from 0 to 4
+    const activity = Math.floor(Math.random() * 5);
+
+    day.classList.add(`level-${activity}`);
+
+    totalContributions += activity;
+
+    day.title = `${activity} contributions`;
+
+    heatmap.appendChild(day);
 }
 
-header {
-    background: #172b4d;
-    color: white;
-    text-align: center;
-    padding: 30px;
+contributionCount.textContent =
+    `${totalContributions} contributions in the last year (sample data)`;
+
+// ===== Repository Cards (SAMPLE DATA) =====
+
+// Yeh sample data hai, real GitHub data nahi.
+const sampleRepos = [
+  {
+    name: "github-developer-portfolio",
+    html_url: "https://github.com/Ayushi98mi/github-developer-portfolio",
+    description: "A dashboard that shows my GitHub activity and projects.",
+    stargazers_count: 5,
+    forks_count: 1,
+    language: "JavaScript"
+  },
+  {
+    name: "todo-app",
+    html_url: "#",
+    description: "Simple to-do list app built with HTML, CSS and JS.",
+    stargazers_count: 3,
+    forks_count: 0,
+    language: "HTML"
+  },
+  {
+    name: "python-calculator",
+    html_url: "#",
+    description: "Command line calculator written in Python.",
+    stargazers_count: 2,
+    forks_count: 1,
+    language: "Python"
+  },
+  {
+    name: "learning-notes",
+    html_url: "#",
+    description: null, // description kabhi kabhi empty hoti hai
+    stargazers_count: 0,
+    forks_count: 0,
+    language: null // language bhi empty ho sakti hai
+  }
+];
+
+// Language ke colors
+const languageColors = {
+  JavaScript: "#f1e05a",
+  HTML: "#e34c26",
+  CSS: "#563d7c",
+  Python: "#3572A5",
+  Java: "#b07219",
+  "C++": "#f34b7d",
+  TypeScript: "#3178c6"
+};
+
+// Safety function: text ko safe banata hai
+function escapeHTML(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
 }
 
-section {
-    background: white;
-    margin: 20px;
-    padding: 25px;
-    border-radius: 10px;
+function renderRepos(repos) {
+  const container = document.getElementById("repo-list");
+  container.innerHTML = "";
+
+  if (repos.length === 0) {
+    container.innerHTML = "<p>No repositories found.</p>";
+    return;
+  }
+
+  repos.forEach(function (repo) {
+    const description = repo.description
+      ? escapeHTML(repo.description)
+      : "No description provided.";
+    const language = repo.language || "Not specified";
+    const color = languageColors[repo.language] || "#999999";
+
+    const card = document.createElement("div");
+    card.className = "repo-card";
+    card.innerHTML = `
+      <div>
+        <a class="repo-name" href="${repo.html_url}" target="_blank" rel="noopener">
+          ${escapeHTML(repo.name)}
+        </a>
+        <p class="repo-desc">${description}</p>
+      </div>
+      <div class="repo-meta">
+        <span><span class="lang-dot" style="background:${color}"></span>${escapeHTML(language)}</span>
+        <span>⭐ ${repo.stargazers_count}</span>
+        <span>🍴 ${repo.forks_count}</span>
+      </div>
+    `;
+    container.appendChild(card);
+  });
 }
 
+// ===== REAL GitHub API DATA =====
+const GITHUB_USERNAME = "Ayushi98mi";
 
-#heatmap {
-    display: grid;
-    grid-template-rows: repeat(7, 12px);
-    grid-auto-flow: column;
-    grid-auto-columns: 12px;
-    gap: 4px;
-    overflow-x: auto;
-    padding: 10px 0;
+async function loadRepos() {
+  const note = document.getElementById("repo-note");
+  try {
+    const response = await fetch(
+      `https://api.github.com/users/${GITHUB_USERNAME}/repos?sort=updated&per_page=100`
+    );
+
+    if (!response.ok) {
+      throw new Error("GitHub API error: " + response.status);
+    }
+
+    const repos = await response.json();
+
+    // Forked repos hata do (optional)
+    const myRepos = repos.filter(function (repo) {
+      return !repo.fork;
+    });
+
+    renderRepos(myRepos);
+    note.textContent = "Live data from GitHub API";
+  } catch (error) {
+    console.error(error);
+    // API fail ho to sample data dikhao
+    renderRepos(sampleRepos);
+    note.textContent = "Could not load GitHub data. Showing sample data.";
+  }
 }
 
-.day {
-    width: 12px;
-    height: 12px;
-    border-radius: 2px;
-    background: #ebedf0;
-}
-
-.level-0 { background: #ebedf0; }
-.level-1 { background: #9be9a8; }
-.level-2 { background: #40c463; }
-.level-3 { background: #30a14e; }
-.level-4 { background: #216e39; }
-
-.graph-info {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 12px;
-    margin-bottom: 10px;
-}
-
-#contribution-count {
-    font-size: 13px;
-    color: #666;
-}
-
-
-h2 {
-    color: #172b4d;
-}
-
-#contribution-graph,
-#repo-list,
-#language-chart {
-    padding: 20px;
-    background: #f0f2f5;
-    border-radius: 8px;
-}
-
-/* ===== Repository Cards ===== */
-.data-note {
-  font-size: 13px;
-  color: #6a737d;
-  margin-bottom: 12px;
-}
-
-.repo-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
-}
-
-.repo-card {
-  background: #ffffff;
-  border: 1px solid #d0d7de;
-  border-radius: 8px;
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: box-shadow 0.2s, transform 0.2s;
-}
-
-.repo-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
-  transform: translateY(-2px);
-}
-
-.repo-name {
-  font-size: 16px;
-  font-weight: bold;
-  color: #0969da;
-  text-decoration: none;
-  word-break: break-word;
-}
-
-.repo-name:hover {
-  text-decoration: underline;
-}
-
-.repo-desc {
-  font-size: 14px;
-  color: #57606a;
-  margin: 10px 0 14px;
-  line-height: 1.4;
-}
-
-.repo-meta {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #57606a;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.lang-dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 4px;
-  vertical-align: middle;
-}
+loadRepos();
