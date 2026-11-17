@@ -69,3 +69,69 @@ h2 {
     background: #f0f2f5;
     border-radius: 8px;
 }
+
+/* ===== Repository Cards ===== */
+.data-note {
+  font-size: 13px;
+  color: #6a737d;
+  margin-bottom: 12px;
+}
+
+.repo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.repo-card {
+  background: #ffffff;
+  border: 1px solid #d0d7de;
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.repo-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.repo-name {
+  font-size: 16px;
+  font-weight: bold;
+  color: #0969da;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.repo-name:hover {
+  text-decoration: underline;
+}
+
+.repo-desc {
+  font-size: 14px;
+  color: #57606a;
+  margin: 10px 0 14px;
+  line-height: 1.4;
+}
+
+.repo-meta {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  color: #57606a;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.lang-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
